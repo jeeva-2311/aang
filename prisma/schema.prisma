@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// generator client {
+//   provider = "prisma-client"
+//   output   = "../src/generated/prisma"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id        Int           @id @default(autoincrement())
+  name      String
+  apis      ApiEndpoint[]
+  createdAt DateTime      @default(now())
+}
+
+model ApiEndpoint {
+  id          Int        @id @default(autoincrement())
+  projectId   Int
+  project     Project    @relation(fields: [projectId], references: [id])
+  name        String
+  url         String
+  method      String
+  testCases   TestCase[]
+  createdAt   DateTime   @default(now())
+}
+
+model TestCase {
+  id            Int        @id @default(autoincrement())
+  apiId         Int
+  api           ApiEndpoint @relation(fields: [apiId], references: [id])
+  name          String
+  requestBody   Json?
+  headers       Json?
+  expectedStatus Int?
+  expectedBody  Json?
+  lastRunAt     DateTime?
+  result        String?
+}
