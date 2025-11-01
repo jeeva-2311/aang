@@ -28,6 +28,7 @@ model Project {
   name      String
   apis      ApiEndpoint[]
   createdAt DateTime      @default(now())
+  baseUrl   String
 }
 
 model ApiEndpoint {

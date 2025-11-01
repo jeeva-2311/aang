@@ -7,6 +7,7 @@ export interface ProjectCardProps {
 
 export interface ApiCardProps {
   api: API;
+  onSelect: (id: string) => void;
 }
 
 export interface DataListProps {

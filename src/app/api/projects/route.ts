@@ -18,13 +18,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name } = await request.json();
+    const { name, baseUrl } = await request.json();
     if (!name || !name.trim()) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
     const newProject = await prisma.project.create({
-      data: { name: name.trim() },
+      data: { name: name.trim(), baseUrl: baseUrl },
     });
 
     return NextResponse.json(newProject, { status: 201 });

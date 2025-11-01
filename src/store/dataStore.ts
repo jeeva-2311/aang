@@ -5,12 +5,14 @@ interface DataState {
   projects: Project[]
   activeProject: string | null
   activeApi: string | null
-  addProject: (name: string) => void
+  addProject: (project: Project) => void
   addApiToProject: (projectId: string, api: API) => void
   setProjects: (projects: Project[]) => void
   setApis: (projectId: string, apis: API[]) => void
   setActiveProject: (id: string | null) => void
   setActiveApi: (id: string | null) => void
+  updateProject: (projectId: string, updates: Partial<Project>) => void
+  deleteProject: (projectId: string) => void
 }
 
 export const useDataStore = create<DataState>((set) => ({
@@ -18,9 +20,9 @@ export const useDataStore = create<DataState>((set) => ({
   activeProject: null,
   activeApi: null,
 
-  addProject: (name) =>
+  addProject: (project: Project) =>
     set((state) => ({
-      projects: [...state.projects, { id: crypto.randomUUID(), name, apis: [] }]
+      projects: [...state.projects, project]
     })),
 
   addApiToProject: (projectId, newApi) =>
@@ -37,4 +39,15 @@ export const useDataStore = create<DataState>((set) => ({
 
   setActiveProject: (id) => set({ activeProject: id }),
   setActiveApi: (id) => set({ activeApi: id }),
+
+  updateProject: (projectId, updates) =>
+    set((state) => ({
+      projects: state.projects.map((p) => p.id === projectId ? { ...p, ...updates } : p),
+    })),
+
+  deleteProject: (projectId) =>
+    set((state) => ({
+      projects: state.projects.filter((p) => p.id !== projectId),
+      activeProject: state.activeProject === projectId ? null : state.activeProject,
+    })),
 }))
