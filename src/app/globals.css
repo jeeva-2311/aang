@@ -133,3 +133,21 @@
   justify-content: center;
   align-items: center;
 }
+
+.gray-thin-scrollbar {
+  scrollbar-gutter: stable overlay;
+}
+
+.gray-thin-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 6px;
+}
+
+.gray-thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gray-thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #DFDFDF;
+  border-radius: 9999px;
+}

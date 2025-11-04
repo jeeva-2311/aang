@@ -1,18 +1,21 @@
 import { create } from "zustand"
-import { Project, API } from "@/types/app";
+import { Project, API, TestCase } from "@/types/app";
 
 interface DataState {
   projects: Project[]
-  activeProject: string | null
-  activeApi: string | null
+  activeProject: number | null
+  activeApi: number | null
   addProject: (project: Project) => void
-  addApiToProject: (projectId: string, api: API) => void
+  addApiToProject: (projectId: number, api: API) => void
+  addTestCaseToAPI: (projectId: number, apiId: number, testCase: TestCase) => void
+  updateTestCaseInAPI: (projectId: number, apiId: number, testCase: TestCase) => void
   setProjects: (projects: Project[]) => void
-  setApis: (projectId: string, apis: API[]) => void
-  setActiveProject: (id: string | null) => void
-  setActiveApi: (id: string | null) => void
-  updateProject: (projectId: string, updates: Partial<Project>) => void
-  deleteProject: (projectId: string) => void
+  setApis: (projectId: number, apis: API[]) => void
+  setActiveProject: (id: number | null) => void
+  setActiveApi: (id: number | null) => void
+  updateProject: (projectId: number, updates: Partial<Project>) => void
+  deleteProject: (projectId: number) => void
+  deleteTestCaseFromAPI: (projectId: number, apiId: number, testCase: number) => void
 }
 
 export const useDataStore = create<DataState>((set) => ({
@@ -28,6 +31,57 @@ export const useDataStore = create<DataState>((set) => ({
   addApiToProject: (projectId, newApi) =>
     set((state) => ({
       projects: state.projects.map((p) => p.id === projectId ? { ...p, apis: [...(p.apis || []), newApi] } : p),
+    })),
+
+  addTestCaseToAPI: (projectId, apiId, testCase) =>
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p.id === projectId
+          ? { ...p, apis: p.apis.map((a) => a.id === apiId ? { ...a, testCases: [...a.testCases, testCase] } : a) }
+          : p
+      ),
+    })),
+
+  updateTestCaseInAPI: (projectId, apiId, testCase) =>
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p.id === projectId
+          ? {
+            ...p,
+            apis: p.apis.map((a) =>
+              a.id === apiId
+                ? {
+                  ...a,
+                  testCases: a.testCases.map((t) =>
+                    t.id === testCase.id ? testCase : t
+                  ),
+                }
+                : a
+            ),
+          }
+          : p
+      ),
+    })),
+
+  deleteTestCaseFromAPI: (projectId, apiId, testCaseId) =>
+    set((state) => ({
+      projects: state.projects.map((p) =>
+        p.id === projectId
+          ? {
+            ...p,
+            apis: p.apis.map((a) =>
+              a.id === apiId
+                ? {
+                  ...a,
+                  testCases: a.testCases.filter(
+                    (t) => t.id !== testCaseId
+                  ),
+                }
+                : a
+            ),
+          }
+          : p
+      ),
     })),
 
   setProjects: (projects) => set({ projects }),

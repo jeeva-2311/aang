@@ -80,6 +80,7 @@ export default function DataSidebar() {
                     value={form.name}
                     onChange={e => setForm({ ...form, name: e.target.value })}
                     placeholder="Enter project name"
+                    className="focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none"
                   />
                 </div>
               ) : (
@@ -95,6 +96,7 @@ export default function DataSidebar() {
                     value={form.baseUrl}
                     onChange={e => setForm({ ...form, baseUrl: e.target.value })}
                     placeholder="https://api.example.com"
+                    className="focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none"
                   />
                 </div>
               ) :

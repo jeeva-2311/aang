@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUIStore } from "@/store/uiStore";
 import { useDataStore } from "@/store/dataStore";
 import { ProjectCardProps, ApiCardProps, DataListProps, EmptyStateProps } from "@/types/components";
+import { getMethodStyle } from "@/utils/general";
 
 const LoadingSkeleton = () =>
   <div className="space-y-2">{Array.from({ length: 3 }).map((_, idx) => (<Skeleton key={idx} className="h-8 w-full rounded-lg" />))}</div>
@@ -34,20 +35,19 @@ function ProjectCard({ project, onSelect }: ProjectCardProps) {
 }
 
 function ApiCard({ api, onSelect }: ApiCardProps) {
-  const methodStyles = {
-    GET: "bg-emerald-100 text-emerald-700 border-emerald-200",
-    POST: "bg-blue-100 text-blue-700 border-blue-200",
-    PUT: "bg-amber-100 text-amber-700 border-amber-200",
-    DELETE: "bg-rose-100 text-rose-700 border-rose-200",
-    DEFAULT: "bg-slate-100 text-slate-600 border-slate-200",
-  };
+  const { activeApi } = useDataStore();
+  const isActive = activeApi === api.id;
 
-  const methodClass = methodStyles[api.method as keyof typeof methodStyles] || methodStyles.DEFAULT;
+  const methodClass = getMethodStyle(api.method);
 
   return (
     <Card
       onClick={() => onSelect(api.id)}
-      className="p-3 bg-slate-100 hover:bg-slate-200 cursor-pointer rounded-lg border border-slate-300 text-slate-700 hover:shadow-sm text-sm transition-all duration-200 gap-y-1"
+      className={`p-3 rounded-lg border text-sm transition-all duration-200 gap-y-1 cursor-pointer
+        ${isActive
+          ? "bg-slate-200 border-slate-400 text-slate-900 shadow-sm"
+          : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700 hover:shadow-sm"
+        }`}
     >
       <div className="flex items-center justify-between mb-1">
         <h3 className="font-semibold truncate">{api.name}</h3>
@@ -62,6 +62,7 @@ function ApiCard({ api, onSelect }: ApiCardProps) {
   );
 }
 
+
 function DataList({ data, isProjectView, onSelect }: DataListProps) {
   return (
     <>
@@ -72,7 +73,7 @@ function DataList({ data, isProjectView, onSelect }: DataListProps) {
   );
 }
 
-function useSidebarData(isProjectView: boolean, activeProject: string | null) {
+function useSidebarData(isProjectView: boolean, activeProject: number | null) {
   const fetchSidebarData = async () => {
     if (isProjectView) {
       const { data } = await axios.get("/api/projects");
@@ -104,7 +105,7 @@ export default function SideBar() {
     else if (activeProject) setApis(activeProject, data);
   }, [data, isProjectView, activeProject]);
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (id: number) => {
     if (isProjectView) {
       setActiveProject(id);
       setSidebarView("api");

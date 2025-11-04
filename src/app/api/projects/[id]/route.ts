@@ -65,7 +65,9 @@ export async function PATCH(
     if (isNaN(projectId)) {
       return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
     }
+
     const { name, baseUrl } = await request.json();
+    console.log(name, baseUrl)
 
     const updatedProject = await prisma.project.update({
       where: { id: projectId },
@@ -92,4 +94,3 @@ export async function PATCH(
     );
   }
 }
-

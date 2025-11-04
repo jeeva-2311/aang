@@ -53,4 +53,5 @@ model TestCase {
   expectedBody  Json?
   lastRunAt     DateTime?
   result        String?
+  url           String?
 }

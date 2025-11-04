@@ -37,10 +37,10 @@ export default function AddApiModal() {
         name: name.trim(),
         url: url.trim(),
         method,
-        projectId: parseInt(activeProject as string)
+        projectId: activeProject as number
       })
       if (status === 201) {
-        addApiToProject(activeProject as string, data)
+        addApiToProject(activeProject as number, data)
         setFormData({ name: "", url: "", method: "" })
         closeModal("newApi")
       }
