@@ -173,7 +173,7 @@ export default function AddTestCaseModal() {
               placeholder='{"Authorization": "Bearer token"}'
               value={formData.headers}
               onChange={(e) => handleChange("headers", e.target.value)}
-              className="bg-slate-200 border-slate-300 text-slate-800 placeholder:text-slate-500 font-mono text-sm min-h-[80px]"
+              className="bg-slate-200 border-slate-300 text-slate-800 placeholder:text-slate-500 font-mono text-sm min-h-20"
             />
             {errors.headers && (
               <p className="text-sm text-red-600 mt-1">{errors.headers}</p>
