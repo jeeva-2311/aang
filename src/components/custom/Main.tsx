@@ -2,11 +2,13 @@
 
 import { useDataStore } from "@/store/dataStore";
 import { useUIStore } from "@/store/uiStore";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getMethodStyle } from "@/utils/general";
 import TestCaseView from "./TestCaseView";
 import { ScrollArea } from "../ui/scroll-area";
+import MainHeader from "./MainHeader";
+import axios from "axios";
 
 function InfoView({ message }: { message: string }) {
     return (
@@ -18,13 +20,30 @@ function InfoView({ message }: { message: string }) {
 }
 
 function ApiView() {
-    const { activeApi, activeProject, projects, setActiveApi } = useDataStore();
-    const { openModal } = useUIStore();
+    const { activeApi, activeProject, projects, updateTestCasesInAPI } = useDataStore();
 
     const project = projects.find(p => p.id === activeProject);
     const apis = project?.apis || [];
     const currentIndex = apis.findIndex(a => a.id === activeApi);
     const api = apis[currentIndex];
+
+    const handleRun = async () => {
+        try {
+          const result = await axios.post("/api/runner/api", { apiId: activeApi });      
+          if (result.status === 200 && result.data?.results?.length) {
+            const transformed = result.data.results.map((r: { [x: string]: any; testCase: any; }) => {
+              const { testCase, ...rest } = r;
+              return {
+                ...testCase,
+                result: rest,
+              };
+            });
+            updateTestCasesInAPI(activeProject as number, activeApi as number, transformed);
+          }
+        } catch (error) {
+          console.error("Failed to run test", error);
+        }
+      };      
 
     if (!api || !project) {
         return (
@@ -37,40 +56,9 @@ function ApiView() {
 
     return (
         <div className="flex flex-col h-screen w-full bg-liner-to-br from-slate-50 to-slate-100">
-            {/* Header Navigation */}
-            <div className="flex items-center justify-between px-6 py-4 shadow-sm h-16 bg-slate-100/80 backdrop-blur-sm">
-                <Button
-                    variant="outline"
-                    size="icon-sm"
-                    disabled={currentIndex <= 0}
-                    onClick={() => setActiveApi(apis[currentIndex - 1].id)}
-                    className="hover:bg-slate-50"
-                >
-                    <ChevronLeft className="h-5 w-5" />
-                </Button>
 
-                <div className="flex items-center gap-3">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openModal("newTestCase")}
-                        className="hover:bg-slate-50"
-                    >
-                        Add Test Case
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="icon-sm"
-                        disabled={currentIndex >= apis.length - 1}
-                        onClick={() => setActiveApi(apis[currentIndex + 1].id)}
-                        className="hover:bg-slate-50"
-                    >
-                        <ChevronRight className="h-5 w-5" />
-                    </Button>
-                </div>
-            </div>
+            <MainHeader />
 
-            {/* API Details Section */}
             <div className="px-6 py-5 bg-white mx-6 mt-6 rounded-lg shadow-sm border border-slate-200">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-slate-700">
                     <div>
@@ -92,19 +80,24 @@ function ApiView() {
                 </div>
             </div>
 
-            {/* Test Cases Section */}
             <div className="flex-1 flex flex-col px-6 py-5 min-h-0">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex justify-between mb-4 items-stretch">
                     <h3 className="text-lg font-semibold text-slate-800">Test Cases</h3>
+
                     {api.testCases?.length > 0 && (
-                        <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                            {api.testCases.length} {api.testCases.length === 1 ? "test" : "tests"}
-                        </span>
+                        <div className="flex-center gap-3">
+                            <span className="text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+                                {api.testCases.length} {api.testCases.length === 1 ? "test" : "tests"}
+                            </span>
+
+                            <Button variant="outline" className="rounded-full px-3 py-1 h-full" onClick={handleRun}>
+                                <Play className="h-4 w-4" />
+                            </Button>
+                        </div>
                     )}
                 </div>
 
-                {/* Scrollable Test Case List */}
                 <ScrollArea className="flex-1 rounded-lg border border-slate-200 bg-white p-4 overflow-y-auto gray-thin-scrollbar">
                     {api.testCases?.length ? (
                         <div className="space-y-3">

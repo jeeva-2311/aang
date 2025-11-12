@@ -11,6 +11,7 @@ interface EditState {
   expectedBody: string;
   requestBody: string;
   headers: string;
+  url: string | null
 }
 
 interface TestCaseEditFormProps {
@@ -20,6 +21,7 @@ interface TestCaseEditFormProps {
     expectedBody: any;
     requestBody: any;
     headers: any;
+    url: string | null
   };
   onSave: (data: EditState) => Promise<void>;
   onCancel: () => void;
@@ -46,9 +48,7 @@ const validateFields = (data: EditState): Record<string, string> => {
     }
   }
 
-  if (!data.requestBody?.trim()) {
-    errors.requestBody = "Request body is required";
-  } else {
+  if (data.requestBody?.trim()) {
     try {
       JSON.parse(data.requestBody);
     } catch {
@@ -56,9 +56,7 @@ const validateFields = (data: EditState): Record<string, string> => {
     }
   }
 
-  if (!data.headers?.trim()) {
-    errors.headers = "Headers are required";
-  } else {
+  if (data.headers?.trim()) {
     try {
       JSON.parse(data.headers);
     } catch {
@@ -76,6 +74,7 @@ export default function TestCaseEditForm({ initialData, onSave, onCancel }: Test
     expectedBody: initialData.expectedBody ? JSON.stringify(initialData.expectedBody, null, 2) : "",
     requestBody: initialData.requestBody ? JSON.stringify(initialData.requestBody, null, 2) : "",
     headers: initialData.headers ? JSON.stringify(initialData.headers, null, 2) : "",
+    url: initialData.url || "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -123,6 +122,26 @@ export default function TestCaseEditForm({ initialData, onSave, onCancel }: Test
             />
           </div>
 
+          <TestCaseFormField
+            label="Bypass URL"
+            required
+            type="input"
+            value={editData.url || ""}
+            onChange={(value) => setEditData({ ...editData, url: value })}
+            placeholder='{"Content-Type": "application/json"}'
+            error={errors.url}
+          />
+
+          <TestCaseFormField
+            label="Headers (JSON)"
+            required
+            type="textarea"
+            value={editData.headers}
+            onChange={(value) => setEditData({ ...editData, headers: value })}
+            placeholder='{"Content-Type": "application/json"}'
+            error={errors.headers}
+          />
+
           <div className="flex w-full gap-3 items-stretch">
             <TestCaseFormField
               label="Expected Body (JSON)"
@@ -146,16 +165,6 @@ export default function TestCaseEditForm({ initialData, onSave, onCancel }: Test
               className="flex flex-col"
             />
           </div>
-
-          <TestCaseFormField
-            label="Headers (JSON)"
-            required
-            type="textarea"
-            value={editData.headers}
-            onChange={(value) => setEditData({ ...editData, headers: value })}
-            placeholder='{"Content-Type": "application/json"}'
-            error={errors.headers}
-          />
 
           {errors.submit && <p className="text-sm text-red-500">{errors.submit}</p>}
         </div>

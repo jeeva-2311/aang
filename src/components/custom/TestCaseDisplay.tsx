@@ -29,10 +29,8 @@ export default function TestCaseDisplay({
 
         <div className="flex-center flex-col gap-3 items-start">
           <div className="flex items-center gap-3">
-            <CardTitle className="text-base font-semibold text-slate-800">
-              {data.name || "Untitled Test Case"}
-            </CardTitle>
-            <Badge variant={data.result === "passed" ? "default" : data.result === "failed" ? "destructive" : "secondary"}>{data.result ?? "Not Run"}</Badge>
+            <CardTitle className="text-base font-semibold text-slate-800">{data.name || "Untitled Test Case"}</CardTitle>
+            {/* <Badge variant={data.result === "passed" ? "default" : data.result === "failed" ? "destructive" : "secondary"}>{data.result ?? "Not Run"}</Badge> */}
           </div>
 
           <div className="flex items-center gap-2 text-slate-600 text-sm">
@@ -65,13 +63,20 @@ export default function TestCaseDisplay({
           </div>
 
           <div className="w-full gap-3">
-            <span className="font-medium text-slate-800">Headers:</span>
+            <span className="font-medium text-slate-800">Bypass Url:</span>
             <pre className="bg-slate-50 p-2 rounded text-xs overflow-auto">
-              {data.headers ? JSON.stringify(data.headers) : "—"}
+              {data.url ? JSON.stringify(data.url) : "—"}
             </pre>
           </div>
         </div>
 
+        <div className="w-full gap-3">
+          <span className="font-medium text-slate-800">Headers:</span>
+          <pre className="bg-slate-50 p-2 rounded text-xs overflow-auto">
+            {data.headers ? JSON.stringify(data.headers) : "—"}
+          </pre>
+        </div>
+        
         <div className="w-full flex gap-4">
           <div className="w-full gap-3">
             <span className="font-medium text-slate-800">Expected Body:</span>

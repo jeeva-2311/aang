@@ -9,6 +9,7 @@ interface DataState {
   addApiToProject: (projectId: number, api: API) => void
   addTestCaseToAPI: (projectId: number, apiId: number, testCase: TestCase) => void
   updateTestCaseInAPI: (projectId: number, apiId: number, testCase: TestCase) => void
+  updateTestCasesInAPI: (projectId: number, apiId: number, updatedTestCases: TestCase[]) => void
   setProjects: (projects: Project[]) => void
   setApis: (projectId: number, apis: API[]) => void
   setActiveProject: (id: number | null) => void
@@ -104,4 +105,29 @@ export const useDataStore = create<DataState>((set) => ({
       projects: state.projects.filter((p) => p.id !== projectId),
       activeProject: state.activeProject === projectId ? null : state.activeProject,
     })),
+
+    updateTestCasesInAPI: (projectId, apiId, updatedTestCases) =>
+      set((state) => ({
+        projects: state.projects.map((p) =>
+          p.id === projectId
+            ? {
+                ...p,
+                apis: p.apis.map((a) =>
+                  a.id === apiId
+                    ? {
+                        ...a,
+                        testCases: a.testCases.map((t) => {
+                          const updated = updatedTestCases.find(
+                            (ut) => ut.id === t.id
+                          );
+                          return updated ? updated : t;
+                        }),
+                      }
+                    : a
+                ),
+              }
+            : p
+        ),
+      })),
+    
 }))

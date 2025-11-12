@@ -1,13 +1,29 @@
+export interface TestCaseResult {
+  status: string;
+  expectedStatus: number;
+  expectedBody: object;
+  actualStatus: number;
+  actualBody: object;
+  request: {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body: object;
+  };
+  testCase: any;
+}
+
 export interface TestCase {
   id: number;
   apiId: number;
   name: string;
-  requestBody?: Record<string, any> | null;
+  requestBody?: Record<string, any>;
   headers?: Record<string, any> | null;
   expectedStatus?: number | null;
-  expectedBody?: Record<string, any> | null;
+  expectedBody?: Record<string, any>;
   lastRunAt?: Date | null;
-  result?: string | null;
+  result?: TestCaseResult;
+  url?: string
 }
 
 export interface API {

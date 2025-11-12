@@ -6,7 +6,7 @@ import { useDataStore } from "@/store/dataStore";
 import axios from "axios";
 import TestCaseDisplay from "./TestCaseDisplay";
 import TestCaseEditForm, { EditState } from "./TestCaseEditForm";
-import TestCaseResultDisplay, { TestCaseRunResultProps } from "./TestCaseResultDisplay";
+import TestCaseResultDisplay from "./TestCaseResultDisplay";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 
 export default function TestCaseView({ data }: { data: TestCase }) {
   const [edit, setEdit] = useState(false);
-  const [runResult, setRunResult] = useState<TestCaseRunResultProps["result"] | null>(null);
 
   const { deleteTestCaseFromAPI, activeApi, activeProject, updateTestCaseInAPI } = useDataStore();
 
@@ -36,7 +35,7 @@ export default function TestCaseView({ data }: { data: TestCase }) {
     const response = await axios.patch("/api/test-cases", payload);
 
     if (response.status === 200) {
-      updateTestCaseInAPI(activeProject as number, activeApi as number, response.data);
+      updateTestCaseInAPI(activeProject as number, activeApi as number, { ...response.data });
       setEdit(false);
     }
   };
@@ -56,13 +55,16 @@ export default function TestCaseView({ data }: { data: TestCase }) {
 
   const handleRun = async () => {
     try {
-      console.log(data.id);
       const result = await axios.post("/api/runner", { id: data.id });
       console.log(result);
       if (result.status === 200) {
-        updateTestCaseInAPI(activeProject as number, activeApi as number, result.data.testCase)
+        const { testCase, ...rest } = result.data;
+        const transformed = {
+          ...testCase,
+          result: rest
+        };
+        updateTestCaseInAPI(activeProject as number, activeApi as number, { ...transformed });
       }
-      setRunResult(result.data);
     } catch (error) {
       console.error("Failed to run test", error);
     }
@@ -82,6 +84,7 @@ export default function TestCaseView({ data }: { data: TestCase }) {
             expectedBody: data.expectedBody,
             requestBody: data.requestBody,
             headers: data.headers,
+            url: data.url as string
           }}
           onSave={handleSave}
           onCancel={() => setEdit(false)}
@@ -94,7 +97,7 @@ export default function TestCaseView({ data }: { data: TestCase }) {
             onDelete={handleDelete}
             onRun={handleRun}
           />
-          {runResult && (
+          {(data?.result && typeof data?.result !== "string") && (
             <>
               <Separator />
               <Accordion type="single" collapsible defaultValue="result">
@@ -102,13 +105,13 @@ export default function TestCaseView({ data }: { data: TestCase }) {
                   <AccordionTrigger className="text-slate-700 font-medium hover:no-underline hover:bg-slate-100 px-3">
                     <div className="flex justify-between items-center text-sm w-full">
                       <h2 className="font-semibold text-slate-800">Test Run Result</h2>
-                      <Badge variant={runResult?.status === "passed" ? "default" : "destructive"} >
-                        {runResult?.status?.toUpperCase()}
+                      <Badge variant={data?.result?.status === "passed" ? "default" : "destructive"} >
+                        {data?.result?.status?.toUpperCase()}
                       </Badge>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <TestCaseResultDisplay result={runResult} />
+                    <TestCaseResultDisplay result={data?.result} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

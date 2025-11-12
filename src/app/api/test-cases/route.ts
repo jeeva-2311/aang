@@ -35,6 +35,7 @@ export async function POST(request: Request) {
       headers,
       expectedStatus,
       expectedBody,
+      url
     } = await request.json();
 
     if (!name?.trim()) {
@@ -53,6 +54,7 @@ export async function POST(request: Request) {
         headers,
         expectedStatus,
         expectedBody,
+        url
       },
     });
 
@@ -77,6 +79,7 @@ export async function PATCH(request: Request) {
       expectedBody,
       result,
       lastRunAt,
+      url
     } = await request.json();
 
     if (!id) {
@@ -93,6 +96,7 @@ export async function PATCH(request: Request) {
         expectedBody,
         result,
         lastRunAt,
+        url
       },
     });
 
